@@ -21,7 +21,7 @@ Molfraw.displayResults = function displayResults(results) {
     MathJax.Hub.Queue(function () {
         output.className = "";
     });
-}
+};
 
 Molfraw.execute = function execute() {
     var input = document.getElementById("input").value;
@@ -42,12 +42,12 @@ Molfraw.execute = function execute() {
     var lexerResult = new LexerDebugResult(tokens);
     var groupResult = new GroupResult("Lexer Raw View", [ lexerResult ]);
     Molfraw.displayResults([ groupResult ]);
-}
+};
 
 Molfraw.handleGoButton = function handleGoButton() {
     event.preventDefault();
     Molfraw.execute();
-}
+};
 
 Molfraw.preparePage = function preparePage() {
     var examples = document.getElementsByClassName("exampleMono");
@@ -58,6 +58,6 @@ Molfraw.preparePage = function preparePage() {
             Molfraw.execute();
         };
     });
-}
+};
 
 window.onload = function() { Molfraw.preparePage(); }

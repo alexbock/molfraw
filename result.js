@@ -4,8 +4,8 @@ function Result(kind) {
     this.kind = kind;
 }
 Result.prototype.present = function present(parent) {
-    throw new Error("pure virtual");
-}
+    pureVirtual();
+};
 
 function GroupResult(name, subresults) {
     Result.call(this, "group");
@@ -26,7 +26,7 @@ GroupResult.prototype.present = function present(parent) {
     this.subresults.forEach(function (subresult) {
         subresult.present(sub_div);
     });
-}
+};
 
 function ErrorResult(error) {
     Result.call(this, "error");
@@ -47,7 +47,7 @@ ErrorResult.prototype.present = function present(parent) {
     sadTextDiv.appendChild(document.createTextNode("'" + this.error.message));
     sadTextDiv.appendChild(document.createTextNode(" at offset " + this.error.offset + "'"));
     parent.appendChild(sadTextDiv);
-}
+};
 
 function LexerDebugResult(tokens) {
     Result.call(this, "lexerDebug");
@@ -62,4 +62,4 @@ LexerDebugResult.prototype.present = function present(parent) {
         list.appendChild(item);
     });
     parent.appendChild(list);
-}
+};
