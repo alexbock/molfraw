@@ -54,3 +54,23 @@ ImaginaryUnitExpr.prototype.toLatexString = function toLatexString() {
 ImaginaryUnitExpr.prototype.toInputString = function toInputString() {
     return "i";
 };
+
+// A symbolic variable
+function VarExpr(name, range) {
+    Expr.call(this, range);
+    this.name = name;
+}
+VarExpr.prototype = Object.create(Expr.prototype);
+VarExpr.prototype.toLatexString = function toLatexString() {
+    if (isLatexGreekLetterName(this.name)) {
+        return "\\" + this.name + "{}";
+    } else if (this.name.indexOf("_") !== -1) {
+        return this.name.substr(0, this.name.indexOf("_")) + "_{" +
+               this.name.substr(this.name.indexOf("_") + 1) + "}";
+    } else {
+        return this.name;
+    }
+};
+VarExpr.prototype.toInputString = function toInputString() {
+    return this.name;
+};
