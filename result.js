@@ -41,11 +41,28 @@ ErrorResult.prototype.present = function present(parent) {
     
     var sadTextDiv = document.createElement("div");
     sadTextDiv.className = "sadText";
-    sadTextDiv.appendChild(document.createTextNode("Sorry, I don't understand."));
-    sadTextDiv.appendChild(document.createElement("br"));
-    sadTextDiv.appendChild(document.createElement("br"));
-    sadTextDiv.appendChild(document.createTextNode("'" + this.error.message));
-    sadTextDiv.appendChild(document.createTextNode(" at offset " + this.error.offset + "'"));
+    if (this.error instanceof DiagnosableError) {
+        sadTextDiv.appendChild(document.createTextNode("Sorry, I don't understand."));
+        sadTextDiv.appendChild(document.createElement("br"));
+        sadTextDiv.appendChild(document.createElement("br"));
+        sadTextDiv.appendChild(document.createTextNode("'" + this.error.message));
+        sadTextDiv.appendChild(document.createTextNode(" at offset " + this.error.offset + "'"));
+    } else {
+        sadTextDiv.appendChild(document.createTextNode("Sorry, something went wrong."));
+        sadTextDiv.appendChild(document.createElement("br"));
+        sadTextDiv.appendChild(document.createTextNode("Please "));
+        var link = document.createElement("a");
+        link.innerHTML = "file a bug report";
+        link.href = "https://github.com/alexbock/molfraw/issues";
+        sadTextDiv.appendChild(link);
+        sadTextDiv.appendChild(document.createTextNode(" and include the text below:"));
+        sadTextDiv.appendChild(document.createElement("br"));
+        sadTextDiv.appendChild(document.createElement("br"));
+        sadTextDiv.appendChild(document.createTextNode("input: '" + document.getElementById("input").value + "'"));
+        sadTextDiv.appendChild(document.createElement("br"));
+        sadTextDiv.appendChild(document.createTextNode("message: '" + this.error.message + "'"));
+    }
+
     parent.appendChild(sadTextDiv);
 };
 

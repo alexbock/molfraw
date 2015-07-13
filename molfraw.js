@@ -29,14 +29,13 @@ Molfraw.execute = function execute() {
         return;
     }
     try {
+        if (input == "__debug_die") throw new Error("unhandled exception test");
         var lexer = new Lexer(Molfraw.tokenDescriptions);
         var tokens = lexer.lex(input);
     } catch (e) {
-        if (e instanceof DiagnosableError) {
-            var errorResult = new ErrorResult(e);
-            Molfraw.displayResults([ errorResult ]);
-            return;
-        }
+        var errorResult = new ErrorResult(e);
+        Molfraw.displayResults([ errorResult ]);
+        return;
     }
     
     var lexerResult = new LexerDebugResult(tokens);

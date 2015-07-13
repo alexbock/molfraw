@@ -143,8 +143,6 @@ body {
     -o-filter: blur(4px);
     -ms-filter: blur(4px);
     filter: blur(4px);
-    
-    transition: 0.1s -webkit-filter linear;
 }
 
 #wrapper {
