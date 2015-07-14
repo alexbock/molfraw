@@ -74,3 +74,16 @@ VarExpr.prototype.toLatexString = function toLatexString() {
 VarExpr.prototype.toInputString = function toInputString() {
     return this.name;
 };
+
+// A constant numerical value
+function NumericalLiteralExpr(value, range) {
+    Expr.call(this, range);
+    this.value = value;
+}
+NumericalLiteralExpr.prototype = Object.create(Expr.prototype);
+NumericalLiteralExpr.prototype.toLatexString = function toLatexString() {
+    return this.value;
+};
+NumericalLiteralExpr.prototype.toInputString = function toInputString() {
+    return this.value;
+};
