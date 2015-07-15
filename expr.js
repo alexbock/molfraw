@@ -87,3 +87,20 @@ NumericalLiteralExpr.prototype.toLatexString = function toLatexString() {
 NumericalLiteralExpr.prototype.toInputString = function toInputString() {
     return this.value;
 };
+
+// A binary operator expression
+function BinaryExpr(operator, lhs, rhs) {
+    Expr.call(this, new Range(lhs.range.begin, rhs.range.end));
+    this.operator = operator;
+    this.lhs = lhs;
+    this.rhs = rhs;
+}
+BinaryExpr.prototype = Object.create(Expr.prototype);
+BinaryExpr.prototype.toLatexString = function toLatexString() {
+    pureVirtual();
+};
+BinaryExpr.prototype.toInputString = function toInputString() {
+    var lhsStr = this.lhs.toInputString();
+    var rhsStr = this.lhs.toInputString();
+    return lhsStr + " " + this.operator + " " + rhsStr;
+};
