@@ -6,7 +6,7 @@ Molfraw.tokenDescriptions = [
     new TokenDescription("keyword", /integral|integrate|of|from|to/gi),
     new TokenDescription("function", /sin|cos|tan|sqrt/g),
     new TokenDescription("name", /[a-z](?:_(?:[a-z]+|[0-9]+))?/gi),
-    new TokenDescription("number", /[0-9]+(?:.[0-9]+)?/g),
+    new TokenDescription("number", /[0-9]+(?:\.[0-9]+)?/g),
     new TokenDescription("symbol", /\+|-|\*|\/|\^|=|\(|\)/g)
 ];
 
