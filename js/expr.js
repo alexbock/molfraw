@@ -104,3 +104,82 @@ BinaryExpr.prototype.toInputString = function toInputString() {
     var rhsStr = this.lhs.toInputString();
     return lhsStr + " " + this.operator + " " + rhsStr;
 };
+
+// A unary operator expression
+function UnaryExpr(operator, operand, isPrefix, range) {
+    Expr.call(this, range);
+    this.operator = operator;
+    this.operand = operand;
+    this.isPrefix = isPrefix;
+}
+UnaryExpr.prototype = Object.create(Expr.prototype);
+UnaryExpr.prototype.toLatexString = function toLatexString() {
+    pureVirtual();
+};
+UnaryExpr.prototype.toInputString = function toInputString() {
+    if (this.isPrefix) {
+        return operator + this.operand.toInputString();
+    } else {
+        return this.operand.toInputString() + operator;
+    }
+};
+
+// A unary prefix operator expression
+function UnaryPrefixExpr(operator, operand, operatorOffset) {
+    var range = new Range(operatorOffset, operand.range.end);
+    UnaryExpr.call(this, operator, operand, true, range);
+}
+UnaryPrefixExpr.prototype = Object.create(UnaryExpr.prototype);
+
+// A unary postfix operator expression
+function UnaryPostfixExpr(operator, operand, operatorEnd) {
+    var range = new Range(operand.range.begin, operatorEnd);
+    UnaryExpr.call(this, operator, operand, false, range);
+}
+UnaryPostfixExpr.prototype = Object.create(UnaryExpr.prototype);
+
+// A symbolic integral expression
+function IntegralExpr(integrand, wrt, range) {
+    Expr.call(this, range);
+    this.integrand = integrand;
+    this.wrt = wrt;
+}
+IntegralExpr.prototype = Object.create(Expr.prototype);
+IntegralExpr.prototype.toLatexString = function toLatexString() {
+    pureVirtual();
+};
+IntegralExpr.prototype.toInputString = function toInputString() {
+    pureVirtual();
+};
+
+// An indefinite integral expression
+function IndefiniteIntegralExpr(integrand, wrt, range) {
+    IntegralExpr.call(this, integrand, wrt, range);
+}
+IndefiniteIntegralExpr.prototype = Object.create(IntegralExpr.prototype);
+IndefiniteIntegralExpr.prototype.toLatexString = function toLatexString() {
+    return "\\int{}" + this.integrand.toLatexString() +
+        "\\,\\mathrm{d}" + this.wrt.toLatexString();
+};
+IndefiniteIntegralExpr.prototype.toInputString = function toInputString() {
+    return "integrate " + this.integrand.toInputString() +
+        " d" + this.wrt.toInputString();
+};
+
+// A symbolic definite integral expression
+function DefiniteIntegralExpr(integrand, from, to, wrt, range) {
+    IntegralExpr.call(integrand, wrt, range);
+    this.from = from;
+    this.to = to;
+}
+DefiniteIntegralExpr.prototype = Object.create(IntegralExpr.prototype);
+DefiniteIntegralExpr.prototype.toLatexString = function toLatexString() {
+    return "\\int_{" + this.from.toLatexString() + "}^{" +
+        this.to.toLatexString() + "}" + this.integrand.toLatexString() +
+        "\\,\\mathrm{d}" + this.wrt.toLatexString();
+};
+DefiniteIntegralExpr.prototype.toInputString = function toInputString() {
+    return "integral from " + this.from.toInputString() +
+        " to " + this.to.toLatexString() + " of " +
+        this.integrand.toInputString() + " d" + this.wrt.toInputString();
+};
