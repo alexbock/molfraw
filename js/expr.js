@@ -28,6 +28,13 @@ ParenExpr.prototype.toInputString = function toInputString() {
 ParenExpr.prototype.bypassParens = function bypassParens() {
     return this.subexpr.bypassParens();
 };
+ParenExpr.parse = function parse(parser) {
+    var lparen = parser.require("(");
+    var subexpr = parser.parse(0);
+    var rparen = parser.expect(")");
+    var range = new Range(lparen.begin, rparen.end);
+    return new ParenExpr(subexpr, range);
+}
 
 // A symbolic constant that should be preserved whenever possible
 // with an underlying approximate numerical value
@@ -74,6 +81,10 @@ VarExpr.prototype.toLatexString = function toLatexString() {
 VarExpr.prototype.toInputString = function toInputString() {
     return this.name;
 };
+VarExpr.parse = function parse(parser) {
+    var token = parser.next();
+    return new VarExpr(token.str, token.range);
+}
 
 // A constant numerical value
 function NumericalLiteralExpr(value, range) {
@@ -130,6 +141,11 @@ function UnaryPrefixExpr(operator, operand, operatorOffset) {
     UnaryExpr.call(this, operator, operand, true, range);
 }
 UnaryPrefixExpr.prototype = Object.create(UnaryExpr.prototype);
+UnaryPrefixExpr.parse = function parse(parser, precedence) {
+    var token = parser.next();
+    var operand = parser.parse(precedence);
+    return new UnaryPrefixExpr(token.str, operand, token.range.begin);
+}
 
 // A unary postfix operator expression
 function UnaryPostfixExpr(operator, operand, operatorEnd) {
