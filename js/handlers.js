@@ -2,13 +2,18 @@
 
 function prefixHandler(parser) {
     var token = parser.peek(0);
-    if (token.kind === "name") {
+    if (!token) {
+        // pass
+    } else if (token.kind === "name") {
         return VarExpr.parse(parser);
     } else if (token.kind === "number") {
         return NumericalLiteralExpr.parse(parser);
     } else if (token.str === "(") {
         return ParenExpr.parse(parser);
     }
+    var offset = -1;
+    if (token) offset = token.range.begin;
+    throw new DiagnosableError("expected primary expression", offset);
 }
 
 function bindBinaryHandler(derivedExpr, parser) {

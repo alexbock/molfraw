@@ -17,7 +17,9 @@ Parser.prototype.next = function next() {
 
 Parser.prototype.require = function require(str) {
     var token = this.next();
-    if (token.str !== str) {
+    if (!token) {
+        throw new Error("expected '" + str + "'");
+    } else if (token.str !== str) {
         throw new Error("expected '" + str + "', got '" + token.str + "'");
     }
     return token;
@@ -25,7 +27,10 @@ Parser.prototype.require = function require(str) {
 
 Parser.prototype.expect = function expect(str) {
     var token = this.next();
-    if (token.str !== str) {
+    if (!token) {
+        var msg = "expected '" + str + "'";
+        throw new DiagnosableError(msg, -1);
+    } else if (token.str !== str) {
         var msg = "expected '" + str + "', got '" + token.str + "'";
         throw new DiagnosableError(msg, token.range.begin);
     }

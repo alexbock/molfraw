@@ -48,7 +48,11 @@ ErrorResult.prototype.present = function present(parent) {
         sadTextDiv.appendChild(document.createElement("br"));
         sadTextDiv.appendChild(document.createElement("br"));
         sadTextDiv.appendChild(document.createTextNode("'" + this.error.message));
-        sadTextDiv.appendChild(document.createTextNode(" at offset " + this.error.offset + "'"));
+        if (this.error.offset == -1) {
+            sadTextDiv.appendChild(document.createTextNode(" at end of input'"));
+        } else {
+            sadTextDiv.appendChild(document.createTextNode(" at offset " + this.error.offset + "'"));
+        }
     } else {
         sadTextDiv.appendChild(document.createTextNode("Sorry, something went wrong."));
         sadTextDiv.appendChild(document.createElement("br"));
