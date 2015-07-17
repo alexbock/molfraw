@@ -103,6 +103,11 @@ NumericalLiteralExpr.prototype.toLatexString = function toLatexString() {
 NumericalLiteralExpr.prototype.toInputString = function toInputString() {
     return this.value;
 };
+NumericalLiteralExpr.parse = function parse(parser) {
+    var token = parser.next();
+    var value = token.str / 1;
+    return new NumericalLiteralExpr(value, token.range);
+}
 
 // A binary operator expression
 function BinaryExpr(operator, lhs, rhs) {
