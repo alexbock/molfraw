@@ -114,7 +114,11 @@ BinaryExpr.prototype.toInputString = function toInputString() {
 };
 BinaryExpr.parse = function parse(parser, lhs) {
     var token = parser.next();
-    var rhs = parser.parse(this.precedence);
+    var precedence = this.precedence;
+    if (this.rightAssociative) {
+        --precedence;
+    }
+    var rhs = parser.parse(precedence);
     return new this(lhs, rhs);
 }
 
@@ -153,6 +157,16 @@ DivisionExpr.precedence = 50;
 DivisionExpr.prototype.toLatexString = function toLatexString() {
     return "\\frac{" + this.lhs.toLatexString() +
         "}{" + this.rhs.toLatexString() + "}";
+};
+
+function ExponentiationExpr(lhs, rhs) {
+    BinaryExpr.call(this, "^", lhs, rhs);
+}
+ExponentiationExpr.prototype = Object.create(BinaryExpr.prototype);
+ExponentiationExpr.precedence = 80;
+ExponentiationExpr.rightAssociative = true;
+ExponentiationExpr.prototype.toLatexString = function toLatexString() {
+    return this.lhs.toLatexString() + "^{" + this.rhs.toLatexString() + "}";
 };
 
 // A unary operator expression

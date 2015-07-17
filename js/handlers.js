@@ -12,6 +12,7 @@ function prefixHandler(parser) {
 function bindBinaryHandler(derivedExpr, parser) {
     var handler = BinaryExpr.parse.bind(derivedExpr, parser);
     handler.precedence = derivedExpr.precedence;
+    handler.rightAssociative = derivedExpr.rightAssociative;
     return handler;
 }
 
@@ -26,5 +27,7 @@ function infixHandlerFactory(parser) {
         return bindBinaryHandler(MultiplicationExpr, parser);
     } else if (token.str === "/") {
         return bindBinaryHandler(DivisionExpr, parser);
+    } else if (token.str === "^") {
+        return bindBinaryHandler(ExponentiationExpr, parser);
     }
 }
