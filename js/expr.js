@@ -32,7 +32,7 @@ ParenExpr.parse = function parse(parser) {
     var lparen = parser.require("(");
     var subexpr = parser.parse(0);
     var rparen = parser.expect(")");
-    var range = new Range(lparen.begin, rparen.end);
+    var range = new Range(lparen.range.begin, rparen.range.end);
     return new ParenExpr(subexpr, range);
 }
 
@@ -125,6 +125,15 @@ AdditionExpr.prototype = Object.create(BinaryExpr.prototype);
 AdditionExpr.precedence = 30;
 AdditionExpr.prototype.toLatexString = function toLatexString() {
     return lhs.toLatexString + " + " + rhs.toLatexString();
+};
+
+function MultiplicationExpr(lhs, rhs) {
+    BinaryExpr.call(this, "*", lhs, rhs);
+}
+MultiplicationExpr.prototype = Object.create(BinaryExpr.prototype);
+MultiplicationExpr.precedence = 50;
+MultiplicationExpr.prototype.toLatexString = function toLatexString() {
+    return lhs.toLatexString + " \cdot{} " + rhs.toLatexString();
 };
 
 // A unary operator expression

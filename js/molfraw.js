@@ -17,6 +17,12 @@ Molfraw.displayResults = function displayResults(results) {
     results.forEach(function (result) {
         result.present(output); 
     });
+    if (!window.MathJax) {
+        // offline
+        // TODO fallback to ascii math rendering
+        output.className = "";
+        return;
+    }
     MathJax.Hub.Queue(["Typeset",MathJax.Hub,"output"]);
     MathJax.Hub.Queue(function () {
         output.className = "";
@@ -32,6 +38,9 @@ Molfraw.execute = function execute() {
         if (input == "__debug_die") throw new Error("unhandled exception test");
         var lexer = new Lexer(Molfraw.tokenDescriptions);
         var tokens = lexer.lex(input);
+        var parser = new Parser(tokens, prefixHandler, infixHandlerFactory);
+        var expr = parser.parse(0);
+        console.log(expr);
     } catch (e) {
         var errorResult = new ErrorResult(e);
         Molfraw.displayResults([ errorResult ]);
