@@ -6,11 +6,12 @@ function prefixHandler(parser) {
         return VarExpr.parse(parser);
     } else if (token.str == "(") {
         return ParenExpr.parse(parser);
-    } else if (token.str == "+") {
-        // TODO
     }
 }
 
 function postfixHandlerFactory(parser) {
-    
+    var token = parser.peek(0);
+    if (token.str == "+") {
+        return BinaryExpr.parse.bind(AdditionExpr, parser);
+    }
 }

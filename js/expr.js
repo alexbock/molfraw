@@ -107,13 +107,24 @@ function BinaryExpr(operator, lhs, rhs) {
     this.rhs = rhs;
 }
 BinaryExpr.prototype = Object.create(Expr.prototype);
-BinaryExpr.prototype.toLatexString = function toLatexString() {
-    pureVirtual();
-};
 BinaryExpr.prototype.toInputString = function toInputString() {
     var lhsStr = this.lhs.toInputString();
     var rhsStr = this.lhs.toInputString();
     return lhsStr + " " + this.operator + " " + rhsStr;
+};
+BinaryExpr.parse = function parse(parser, lhs) {
+    var token = parser.next();
+    var rhs = parser.parse(this.precedence);
+    return new this(lhs, rhs);
+}
+
+function AdditionExpr(lhs, rhs) {
+    BinaryExpr.call(this, "+", lhs, rhs);
+}
+AdditionExpr.prototype = Object.create(BinaryExpr.prototype);
+AdditionExpr.precedence = 30;
+AdditionExpr.prototype.toLatexString = function toLatexString() {
+    return lhs.toLatexString + " + " + rhs.toLatexString();
 };
 
 // A unary operator expression
