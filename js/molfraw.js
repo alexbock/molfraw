@@ -40,7 +40,9 @@ Molfraw.execute = function execute() {
         var tokens = lexer.lex(input);
         var parser = new Parser(tokens, prefixHandler, infixHandlerFactory);
         var expr = parser.parse(0);
-        console.log(expr);
+        if (parser.index != tokens.length) {
+            throw new DiagnosableError("extraneous tokens", -1);
+        }
     } catch (e) {
         var errorResult = new ErrorResult(e);
         Molfraw.displayResults([ errorResult ]);
