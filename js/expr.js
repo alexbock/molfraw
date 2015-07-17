@@ -19,6 +19,7 @@ function ParenExpr(subexpr, range) {
     this.subexpr = subexpr;
 }
 ParenExpr.prototype = Object.create(Expr.prototype);
+ParenExpr.prototype.constructor = ParenExpr;
 ParenExpr.prototype.toLatexString = function toLatexString() {
     return "\\left(" + this.subexpr.toLatexString() + "\\right)";
 };
@@ -43,6 +44,7 @@ function SymbolicConstantExpr(constant, range) {
     this.constant = constant;
 }
 SymbolicConstantExpr.prototype = Object.create(Expr.prototype);
+SymbolicConstantExpr.prototype.constructor = SymbolicConstantExpr;
 SymbolicConstantExpr.prototype.toLatexString = function toLatexString() {
     return constant.latex;
 };
@@ -55,6 +57,7 @@ function ImaginaryUnitExpr(range) {
     Expr.call(this, range);
 }
 ImaginaryUnitExpr.prototype = Object.create(Expr.prototype);
+ImaginaryUnitExpr.prototype.constructor = ImaginaryUnitExpr;
 ImaginaryUnitExpr.prototype.toLatexString = function toLatexString() {
     return "\mathrm{i}";
 };
@@ -68,6 +71,7 @@ function VarExpr(name, range) {
     this.name = name;
 }
 VarExpr.prototype = Object.create(Expr.prototype);
+VarExpr.prototype.constructor = VarExpr;
 VarExpr.prototype.toLatexString = function toLatexString() {
     if (isLatexGreekLetterName(this.name)) {
         return "\\" + this.name + "{}";
@@ -92,6 +96,7 @@ function NumericalLiteralExpr(value, range) {
     this.value = value;
 }
 NumericalLiteralExpr.prototype = Object.create(Expr.prototype);
+NumericalLiteralExpr.prototype.constructor = NumericalLiteralExpr;
 NumericalLiteralExpr.prototype.toLatexString = function toLatexString() {
     return this.value;
 };
@@ -107,9 +112,10 @@ function BinaryExpr(operator, lhs, rhs) {
     this.rhs = rhs;
 }
 BinaryExpr.prototype = Object.create(Expr.prototype);
+BinaryExpr.prototype.constructor = BinaryExpr;
 BinaryExpr.prototype.toInputString = function toInputString() {
     var lhsStr = this.lhs.toInputString();
-    var rhsStr = this.lhs.toInputString();
+    var rhsStr = this.rhs.toInputString();
     return lhsStr + " " + this.operator + " " + rhsStr;
 };
 BinaryExpr.parse = function parse(parser, lhs) {
@@ -126,6 +132,7 @@ function AdditionExpr(lhs, rhs) {
     BinaryExpr.call(this, "+", lhs, rhs);
 }
 AdditionExpr.prototype = Object.create(BinaryExpr.prototype);
+AdditionExpr.prototype.constructor = AdditionExpr;
 AdditionExpr.precedence = 30;
 AdditionExpr.prototype.toLatexString = function toLatexString() {
     return this.lhs.toLatexString() + " + " + this.rhs.toLatexString();
@@ -135,6 +142,7 @@ function SubtractionExpr(lhs, rhs) {
     BinaryExpr.call(this, "-", lhs, rhs);
 }
 SubtractionExpr.prototype = Object.create(BinaryExpr.prototype);
+SubtractionExpr.prototype.constructor = SubtractionExpr;
 SubtractionExpr.precedence = 30;
 SubtractionExpr.prototype.toLatexString = function toLatexString() {
     return this.lhs.toLatexString() + " - " + this.rhs.toLatexString();
@@ -144,6 +152,7 @@ function MultiplicationExpr(lhs, rhs) {
     BinaryExpr.call(this, "*", lhs, rhs);
 }
 MultiplicationExpr.prototype = Object.create(BinaryExpr.prototype);
+MultiplicationExpr.prototype.constructor = MultiplicationExpr;
 MultiplicationExpr.precedence = 50;
 MultiplicationExpr.prototype.toLatexString = function toLatexString() {
     return this.lhs.toLatexString() + " \cdot{} " + this.rhs.toLatexString();
@@ -153,6 +162,7 @@ function DivisionExpr(lhs, rhs) {
     BinaryExpr.call(this, "/", lhs, rhs);
 }
 DivisionExpr.prototype = Object.create(BinaryExpr.prototype);
+DivisionExpr.prototype.constructor = DivisionExpr;
 DivisionExpr.precedence = 50;
 DivisionExpr.prototype.toLatexString = function toLatexString() {
     return "\\frac{" + this.lhs.toLatexString() +
@@ -163,6 +173,7 @@ function ExponentiationExpr(lhs, rhs) {
     BinaryExpr.call(this, "^", lhs, rhs);
 }
 ExponentiationExpr.prototype = Object.create(BinaryExpr.prototype);
+ExponentiationExpr.prototype.constructor = ExponentiationExpr;
 ExponentiationExpr.precedence = 80;
 ExponentiationExpr.rightAssociative = true;
 ExponentiationExpr.prototype.toLatexString = function toLatexString() {
@@ -177,6 +188,7 @@ function UnaryExpr(operator, operand, isPrefix, range) {
     this.isPrefix = isPrefix;
 }
 UnaryExpr.prototype = Object.create(Expr.prototype);
+UnaryExpr.prototype.constructor = UnaryExpr;
 UnaryExpr.prototype.toLatexString = function toLatexString() {
     pureVirtual();
 };
@@ -194,6 +206,7 @@ function UnaryPrefixExpr(operator, operand, operatorOffset) {
     UnaryExpr.call(this, operator, operand, true, range);
 }
 UnaryPrefixExpr.prototype = Object.create(UnaryExpr.prototype);
+UnaryPrefixExpr.prototype.constructor = UnaryPrefixExpr;
 UnaryPrefixExpr.parse = function parse(parser, precedence) {
     var token = parser.next();
     var operand = parser.parse(precedence);
@@ -206,6 +219,7 @@ function UnaryPostfixExpr(operator, operand, operatorEnd) {
     UnaryExpr.call(this, operator, operand, false, range);
 }
 UnaryPostfixExpr.prototype = Object.create(UnaryExpr.prototype);
+UnaryPostfixExpr.prototype.constructor = UnaryPostfixExpr;
 
 // A symbolic integral expression
 function IntegralExpr(integrand, wrt, range) {
@@ -214,6 +228,7 @@ function IntegralExpr(integrand, wrt, range) {
     this.wrt = wrt;
 }
 IntegralExpr.prototype = Object.create(Expr.prototype);
+IntegralExpr.prototype.constructor = IntegralExpr;
 IntegralExpr.prototype.toLatexString = function toLatexString() {
     pureVirtual();
 };
@@ -226,6 +241,7 @@ function IndefiniteIntegralExpr(integrand, wrt, range) {
     IntegralExpr.call(this, integrand, wrt, range);
 }
 IndefiniteIntegralExpr.prototype = Object.create(IntegralExpr.prototype);
+IndefiniteIntegralExpr.prototype.constructor = IndefiniteIntegralExpr;
 IndefiniteIntegralExpr.prototype.toLatexString = function toLatexString() {
     return "\\int{}" + this.integrand.toLatexString() +
         "\\,\\mathrm{d}" + this.wrt.toLatexString();
@@ -242,6 +258,7 @@ function DefiniteIntegralExpr(integrand, from, to, wrt, range) {
     this.to = to;
 }
 DefiniteIntegralExpr.prototype = Object.create(IntegralExpr.prototype);
+DefiniteIntegralExpr.prototype.constructor = DefiniteIntegralExpr;
 DefiniteIntegralExpr.prototype.toLatexString = function toLatexString() {
     return "\\int_{" + this.from.toLatexString() + "}^{" +
         this.to.toLatexString() + "}" + this.integrand.toLatexString() +

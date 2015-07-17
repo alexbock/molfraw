@@ -13,6 +13,7 @@ function GroupResult(name, subresults) {
     this.subresults = subresults;
 }
 GroupResult.prototype = Object.create(Result.prototype);
+GroupResult.prototype.constructor = GroupResult;
 GroupResult.prototype.present = function present(parent) {
     var div = document.createElement("div");
     var span = document.createElement("span");
@@ -33,6 +34,7 @@ function ErrorResult(error) {
     this.error = error;
 }
 ErrorResult.prototype = Object.create(Result.prototype);
+ErrorResult.prototype.constructor = ErrorResult;
 ErrorResult.prototype.present = function present(parent) {  
     var sadFaceDiv = document.createElement("div");
     sadFaceDiv.className = "sadFace";
@@ -71,6 +73,7 @@ function LexerDebugResult(tokens) {
     this.tokens = tokens;
 }
 LexerDebugResult.prototype = Object.create(Result.prototype);
+LexerDebugResult.prototype.constructor = LexerDebugResult;
 LexerDebugResult.prototype.present = function present(parent) {
     var list = document.createElement("ul");
     this.tokens.forEach(function (token) {
@@ -78,5 +81,35 @@ LexerDebugResult.prototype.present = function present(parent) {
         item.appendChild(document.createTextNode(token.kind + " '" + token.str + "'"));
         list.appendChild(item);
     });
+    parent.appendChild(list);
+};
+
+function exprToHTMLParseTree(expr) {
+    var result = "<li>";
+    result += expr.constructor.name;
+    result += "<ul>";
+    for (var prop in expr) {
+        if (expr[prop] instanceof Expr) {
+            result += exprToHTMLParseTree(expr[prop]);
+        }
+    }
+    result += "</ul>";
+    result += "</li>";
+    return result;
+}
+
+function ParserDebugResult(expr) {
+    Result.call(this, "parserDebug");
+    this.expr = expr;
+}
+ParserDebugResult.prototype = Object.create(Result.prototype);
+ParserDebugResult.prototype.constructor = ParserDebugResult;
+ParserDebugResult.prototype.present = function present(parent) {
+    parent.appendChild(document.createTextNode("Parse Tree Feedback: "));
+    parent.appendChild(document.createTextNode(this.expr.toInputString()));
+    parent.appendChild(document.createElement("br"));
+    parent.appendChild(document.createTextNode("Parse Tree: "));
+    var list = document.createElement("ul");
+    list.innerHTML = exprToHTMLParseTree(this.expr);
     parent.appendChild(list);
 };

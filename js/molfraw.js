@@ -48,8 +48,10 @@ Molfraw.execute = function execute() {
     }
     
     var lexerResult = new LexerDebugResult(tokens);
-    var groupResult = new GroupResult("Lexer Raw View", [ lexerResult ]);
-    Molfraw.displayResults([ groupResult ]);
+    var lexerGroupResult = new GroupResult("Lexer Raw View", [ lexerResult ]);
+    var parserResult = new ParserDebugResult(expr);
+    var parserGroupResult = new GroupResult("Parser Raw View", [ parserResult ]);
+    Molfraw.displayResults([ lexerGroupResult, parserGroupResult ]);
 };
 
 Molfraw.handleGoButton = function handleGoButton() {
