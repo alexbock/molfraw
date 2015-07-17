@@ -124,7 +124,16 @@ function AdditionExpr(lhs, rhs) {
 AdditionExpr.prototype = Object.create(BinaryExpr.prototype);
 AdditionExpr.precedence = 30;
 AdditionExpr.prototype.toLatexString = function toLatexString() {
-    return lhs.toLatexString + " + " + rhs.toLatexString();
+    return this.lhs.toLatexString() + " + " + this.rhs.toLatexString();
+};
+
+function SubtractionExpr(lhs, rhs) {
+    BinaryExpr.call(this, "-", lhs, rhs);
+}
+SubtractionExpr.prototype = Object.create(BinaryExpr.prototype);
+SubtractionExpr.precedence = 30;
+SubtractionExpr.prototype.toLatexString = function toLatexString() {
+    return this.lhs.toLatexString() + " - " + this.rhs.toLatexString();
 };
 
 function MultiplicationExpr(lhs, rhs) {
@@ -133,7 +142,17 @@ function MultiplicationExpr(lhs, rhs) {
 MultiplicationExpr.prototype = Object.create(BinaryExpr.prototype);
 MultiplicationExpr.precedence = 50;
 MultiplicationExpr.prototype.toLatexString = function toLatexString() {
-    return lhs.toLatexString + " \cdot{} " + rhs.toLatexString();
+    return this.lhs.toLatexString() + " \cdot{} " + this.rhs.toLatexString();
+};
+
+function DivisionExpr(lhs, rhs) {
+    BinaryExpr.call(this, "/", lhs, rhs);
+}
+DivisionExpr.prototype = Object.create(BinaryExpr.prototype);
+DivisionExpr.precedence = 50;
+DivisionExpr.prototype.toLatexString = function toLatexString() {
+    return "\\frac{" + this.lhs.toLatexString() +
+        "}{" + this.rhs.toLatexString() + "}";
 };
 
 // A unary operator expression

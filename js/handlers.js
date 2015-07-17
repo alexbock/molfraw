@@ -20,7 +20,11 @@ function infixHandlerFactory(parser) {
     if (!token) return null;
     if (token.str === "+") {
         return bindBinaryHandler(AdditionExpr, parser);
+    } else if (token.str === "-") {
+        return bindBinaryHandler(SubtractionExpr, parser);
     } else if (token.str === "*") {
         return bindBinaryHandler(MultiplicationExpr, parser);
+    } else if (token.str === "/") {
+        return bindBinaryHandler(DivisionExpr, parser);
     }
 }
