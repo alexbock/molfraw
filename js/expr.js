@@ -12,6 +12,9 @@ Expr.prototype.toInputString = function toInputString() {
 Expr.prototype.bypassParens = function bypassParens() {
     return this;
 };
+Expr.prototype.safeSimplify = function safeSimplify() {
+    return this;
+};
 
 // Wraps an expression enclosed in parentheses
 function ParenExpr(subexpr, range) {
@@ -28,6 +31,9 @@ ParenExpr.prototype.toInputString = function toInputString() {
 };
 ParenExpr.prototype.bypassParens = function bypassParens() {
     return this.subexpr.bypassParens();
+};
+ParenExpr.prototype.safeSimplify = function safeSimplify() {
+    return this.subexpr.safeSimplify();
 };
 ParenExpr.parse = function parse(parser) {
     var lparen = parser.require("(");
@@ -131,7 +137,7 @@ BinaryExpr.parse = function parse(parser, lhs) {
     }
     var rhs = parser.parse(precedence);
     return new this(lhs, rhs);
-}
+};
 
 function AdditionExpr(lhs, rhs) {
     BinaryExpr.call(this, "+", lhs, rhs);
@@ -141,6 +147,16 @@ AdditionExpr.prototype.constructor = AdditionExpr;
 AdditionExpr.precedence = 30;
 AdditionExpr.prototype.toLatexString = function toLatexString() {
     return this.lhs.toLatexString() + " + " + this.rhs.toLatexString();
+};
+AdditionExpr.prototype.safeSimplify = function safeSimplify() {
+    var lhsr = this.lhs.safeSimplify();
+    var rhsr = this.rhs.safeSimplify();
+    if (lhsr instanceof NumericalLiteralExpr &&
+        rhsr instanceof NumericalLiteralExpr) {
+        return new NumericalLiteralExpr(lhsr.value + rhsr.value, this.range);
+    } else {
+        return new this.constructor(lhsr, rhsr);
+    }
 };
 
 function SubtractionExpr(lhs, rhs) {
@@ -152,6 +168,16 @@ SubtractionExpr.precedence = 30;
 SubtractionExpr.prototype.toLatexString = function toLatexString() {
     return this.lhs.toLatexString() + " - " + this.rhs.toLatexString();
 };
+SubtractionExpr.prototype.safeSimplify = function safeSimplify() {
+    var lhsr = this.lhs.safeSimplify();
+    var rhsr = this.rhs.safeSimplify();
+    if (lhsr instanceof NumericalLiteralExpr &&
+        rhsr instanceof NumericalLiteralExpr) {
+        return new NumericalLiteralExpr(lhsr.value - rhsr.value, this.range);
+    } else {
+        return new this.constructor(lhsr, rhsr);
+    }
+};
 
 function MultiplicationExpr(lhs, rhs) {
     BinaryExpr.call(this, "*", lhs, rhs);
@@ -160,7 +186,17 @@ MultiplicationExpr.prototype = Object.create(BinaryExpr.prototype);
 MultiplicationExpr.prototype.constructor = MultiplicationExpr;
 MultiplicationExpr.precedence = 50;
 MultiplicationExpr.prototype.toLatexString = function toLatexString() {
-    return this.lhs.toLatexString() + " \cdot{} " + this.rhs.toLatexString();
+    return this.lhs.toLatexString() + " \\cdot{} " + this.rhs.toLatexString();
+};
+MultiplicationExpr.prototype.safeSimplify = function safeSimplify() {
+    var lhsr = this.lhs.safeSimplify();
+    var rhsr = this.rhs.safeSimplify();
+    if (lhsr instanceof NumericalLiteralExpr &&
+        rhsr instanceof NumericalLiteralExpr) {
+        return new NumericalLiteralExpr(lhsr.value * rhsr.value, this.range);
+    } else {
+        return new this.constructor(lhsr, rhsr);
+    }
 };
 
 function DivisionExpr(lhs, rhs) {
@@ -173,6 +209,16 @@ DivisionExpr.prototype.toLatexString = function toLatexString() {
     return "\\frac{" + this.lhs.toLatexString() +
         "}{" + this.rhs.toLatexString() + "}";
 };
+DivisionExpr.prototype.safeSimplify = function safeSimplify() {
+    var lhsr = this.lhs.safeSimplify();
+    var rhsr = this.rhs.safeSimplify();
+    if (lhsr instanceof NumericalLiteralExpr &&
+        rhsr instanceof NumericalLiteralExpr) {
+        return new NumericalLiteralExpr(lhsr.value / rhsr.value, this.range);
+    } else {
+        return new this.constructor(lhsr, rhsr);
+    }
+};
 
 function ExponentiationExpr(lhs, rhs) {
     BinaryExpr.call(this, "^", lhs, rhs);
@@ -183,6 +229,16 @@ ExponentiationExpr.precedence = 80;
 ExponentiationExpr.rightAssociative = true;
 ExponentiationExpr.prototype.toLatexString = function toLatexString() {
     return this.lhs.toLatexString() + "^{" + this.rhs.toLatexString() + "}";
+};
+ExponentiationExpr.prototype.safeSimplify = function safeSimplify() {
+    var lhsr = this.lhs.safeSimplify();
+    var rhsr = this.rhs.safeSimplify();
+    if (lhsr instanceof NumericalLiteralExpr &&
+        rhsr instanceof NumericalLiteralExpr) {
+        return new NumericalLiteralExpr(Math.pow(lhsr.value, rhsr.value), this.range);
+    } else {
+        return new this.constructor(lhsr, rhsr);
+    }
 };
 
 // A unary operator expression
@@ -239,6 +295,9 @@ IntegralExpr.prototype.toLatexString = function toLatexString() {
 };
 IntegralExpr.prototype.toInputString = function toInputString() {
     pureVirtual();
+};
+IntegralExpr.parse = function parse(parser) {
+    throw new Error("not yet implemented"); // TODO
 };
 
 // An indefinite integral expression

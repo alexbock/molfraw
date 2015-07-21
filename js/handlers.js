@@ -10,6 +10,8 @@ function prefixHandler(parser) {
         return NumericalLiteralExpr.parse(parser);
     } else if (token.str === "(") {
         return ParenExpr.parse(parser);
+    } else if (token.str === "integrate" || token.str == "integral") {
+       return IntegralExpr.parse(parser);
     }
     var offset = -1;
     if (token) offset = token.range.begin;

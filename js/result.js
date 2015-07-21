@@ -116,4 +116,12 @@ ParserDebugResult.prototype.present = function present(parent) {
     var list = document.createElement("ul");
     list.innerHTML = exprToHTMLParseTree(this.expr);
     parent.appendChild(list);
+    parent.appendChild(document.createElement("br"));
+    parent.appendChild(document.createTextNode("LaTeX Representation: "));
+    var latex = this.expr.toLatexString();
+    parent.appendChild(document.createTextNode("$$" + latex + "$$"));
+    var safeSimplified = this.expr.safeSimplify();
+    parent.appendChild(document.createTextNode("Safe Simplification LaTeX Representation: "));
+    var safeSimplifiedLatex = safeSimplified.toLatexString();
+    parent.appendChild(document.createTextNode("$$" + safeSimplifiedLatex + "$$"));
 };
