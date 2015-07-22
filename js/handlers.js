@@ -38,5 +38,12 @@ function infixHandlerFactory(parser) {
         return bindBinaryHandler(DivisionExpr, parser);
     } else if (token.str === "^") {
         return bindBinaryHandler(ExponentiationExpr, parser);
+    } else if (token.kind === "name") {
+        var handler = ImplicitMultiplicationExpr.parse.bind(null, parser);
+        handler.precedence = ImplicitMultiplicationExpr.precedence;
+        return handler;
+    } else if (token.str === "(") {
+        // TODO implicit multiplication or function call
+        throw new Error("TODO");
     }
 }

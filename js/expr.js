@@ -199,6 +199,20 @@ MultiplicationExpr.prototype.safeSimplify = function safeSimplify() {
     }
 };
 
+function ImplicitMultiplicationExpr(lhs, rhs) {
+    MultiplicationExpr.call(this, lhs, rhs);
+}
+ImplicitMultiplicationExpr.prototype = Object.create(MultiplicationExpr.prototype);
+ImplicitMultiplicationExpr.prototype.constructor = ImplicitMultiplicationExpr;
+ImplicitMultiplicationExpr.precedence = 60;
+ImplicitMultiplicationExpr.prototype.toLatexString = function toLatexString() {
+    return this.lhs.toLatexString() + "\\,{}" + this.rhs.toLatexString();
+};
+ImplicitMultiplicationExpr.parse = function parse(parser, lhs) {
+    var rhs = parser.parse(ImplicitMultiplicationExpr.precedence);
+    return new ImplicitMultiplicationExpr(lhs, rhs);
+};
+
 function DivisionExpr(lhs, rhs) {
     BinaryExpr.call(this, "/", lhs, rhs);
 }
