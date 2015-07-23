@@ -15,28 +15,10 @@ body {
 
 #content {
     margin-top: 6%;
-    width: 50%;
+    width: 85%;
+    max-width: 450pt;
     margin-left: auto;
     margin-right: auto;
-}
-
-@media (min-width: 1500px) {
-    #content {
-        width: 40%;
-    }
-}
-
-@media (max-width: 900px) {
-    #content {
-        width: 80%;
-    }
-}
-
-@media (max-width: 700px) {
-    #content {
-        width: 90%;
-        margin-top: 3%;
-    }
 }
 
 #logoText {
@@ -55,12 +37,13 @@ body {
 
 #input {
     background-color: rgba(12, 12, 12, 0.65);
+    -webkit-appearance: none;
     border-width: 0;
     color: white;
     outline: 0;
     font-size: 130%;
     border-radius: 3px;
-    vertical-align: bottom;
+    vertical-align: middle;
     width: 80%;
     box-shadow: 0 0 1px white;
     font-family: sans-serif;
@@ -68,14 +51,16 @@ body {
 }
 
 #go {
-    background: none;
+    background: solid;
     background-color: rgba(12, 12, 12, 0.75);
+    -webkit-appearance: none;
     color: white;
     outline: 0;
     border: none;
     border-radius: 3px;
-    font-size: 110%;
+    height: 2em;
     box-shadow: 0 0 1px white;
+    vertical-align: middle;
 }
 
 #go:hover {
