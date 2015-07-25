@@ -269,9 +269,9 @@ UnaryExpr.prototype.toLatexString = function toLatexString() {
 };
 UnaryExpr.prototype.toInputString = function toInputString() {
     if (this.isPrefix) {
-        return operator + this.operand.toInputString();
+        return this.operator + this.operand.toInputString();
     } else {
-        return this.operand.toInputString() + operator;
+        return this.operand.toInputString() + this.operator;
     }
 };
 
@@ -282,11 +282,21 @@ function UnaryPrefixExpr(operator, operand, operatorOffset) {
 }
 UnaryPrefixExpr.prototype = Object.create(UnaryExpr.prototype);
 UnaryPrefixExpr.prototype.constructor = UnaryPrefixExpr;
-UnaryPrefixExpr.parse = function parse(parser, precedence) {
+UnaryPrefixExpr.parse = function parse(parser) {
     var token = parser.next();
-    var operand = parser.parse(precedence);
-    return new UnaryPrefixExpr(token.str, operand, token.range.begin);
+    var operand = parser.parse(this.precedence);
+    return new this(operand, token.range.begin);
 }
+
+function NegationExpr(operand, operatorOffset) {
+    UnaryPrefixExpr.call(this, "-", operand, operatorOffset);
+}
+NegationExpr.prototype = Object.create(UnaryPrefixExpr.prototype);
+NegationExpr.prototype.constructor = NegationExpr;
+NegationExpr.precedence = 75;
+NegationExpr.prototype.toLatexString = function toLatexString() {
+    return "-" + this.operand.toLatexString();
+};
 
 // A unary postfix operator expression
 function UnaryPostfixExpr(operator, operand, operatorEnd) {

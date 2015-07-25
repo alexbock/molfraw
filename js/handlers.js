@@ -12,6 +12,8 @@ function prefixHandler(parser) {
         return ParenExpr.parse(parser);
     } else if (token.str === "integrate" || token.str == "integral") {
        return IntegralExpr.parse(parser);
+    } else if (token.str === "-") {
+        return UnaryPrefixExpr.parse.call(NegationExpr, parser);
     }
     var offset = -1;
     if (token) offset = token.range.begin;
