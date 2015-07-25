@@ -297,6 +297,14 @@ NegationExpr.precedence = 75;
 NegationExpr.prototype.toLatexString = function toLatexString() {
     return "-" + this.operand.toLatexString();
 };
+NegationExpr.prototype.safeSimplify = function safeSimplify() {
+    var opr = this.operand.safeSimplify();
+    if (opr instanceof NumericalLiteralExpr) {
+        return new NumericalLiteralExpr(-opr.value, this.range);
+    } else {
+        return new this(this.operand, this.operatorOffset);
+    }
+};
 
 // A unary postfix operator expression
 function UnaryPostfixExpr(operator, operand, operatorEnd) {
