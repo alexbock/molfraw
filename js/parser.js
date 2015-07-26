@@ -8,6 +8,7 @@ function Parser(tokens, prefixHandler, infixHandlerFactory) {
 }
 
 Parser.prototype.peek = function peek(lookahead) {
+    if (!lookahead) lookahead = 0;
     return this.tokens[this.index + lookahead];
 };
 

@@ -12,6 +12,8 @@ function prefixHandler(parser) {
         return ParenExpr.parse(parser);
     } else if (token.str === "integrate" || token.str == "integral") {
        return IntegralExpr.parse(parser);
+    } else if (token.str === "derivative") {
+        return DerivativeExpr.parse(parser);
     } else if (token.str === "-") {
         return UnaryPrefixExpr.parse.call(NegationExpr, parser);
     }

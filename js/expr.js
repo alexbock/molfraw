@@ -15,6 +15,9 @@ Expr.prototype.bypassParens = function bypassParens() {
 Expr.prototype.safeSimplify = function safeSimplify() {
     return this;
 };
+Expr.prototype.derivative = function derivative(wrt) {
+    pureVirtual();
+};
 
 // Wraps an expression enclosed in parentheses
 function ParenExpr(subexpr, range) {
@@ -34,6 +37,9 @@ ParenExpr.prototype.bypassParens = function bypassParens() {
 };
 ParenExpr.prototype.safeSimplify = function safeSimplify() {
     return this.subexpr.safeSimplify();
+};
+ParenExpr.prototype.derivative = function derivative(wrt) {
+    return this.subexpr.derivative(wrt);
 };
 ParenExpr.parse = function parse(parser) {
     var lparen = parser.require("(");
@@ -91,6 +97,10 @@ VarExpr.prototype.toLatexString = function toLatexString() {
 VarExpr.prototype.toInputString = function toInputString() {
     return this.name;
 };
+VarExpr.prototype.derivative = function derivative(wrt) {
+    if (wrt === this.name) return new NumericalLiteralExpr(1, this.range);
+    else return new NumericalLiteralExpr(0, this.range);
+};
 VarExpr.parse = function parse(parser) {
     var token = parser.next();
     return new VarExpr(token.str, token.range);
@@ -108,6 +118,9 @@ NumericalLiteralExpr.prototype.toLatexString = function toLatexString() {
 };
 NumericalLiteralExpr.prototype.toInputString = function toInputString() {
     return this.value;
+};
+NumericalLiteralExpr.prototype.derivative = function derivative(wrt) {
+    return new NumericalLiteralExpr(0, this.range);
 };
 NumericalLiteralExpr.parse = function parse(parser) {
     var token = parser.next();
@@ -154,9 +167,16 @@ AdditionExpr.prototype.safeSimplify = function safeSimplify() {
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
         return new NumericalLiteralExpr(lhsr.value + rhsr.value, this.range);
-    } else {
+    } else if (isZero(lhsr)) return rhsr;
+    else if (isZero(rhsr)) return lhsr;
+    else {
         return new this.constructor(lhsr, rhsr);
     }
+};
+AdditionExpr.prototype.derivative = function derivative(wrt) {
+    var lhsd = this.lhs.derivative(wrt);
+    var rhsd = this.rhs.derivative(wrt);
+    return new AdditionExpr(lhsd, rhsd);
 };
 
 function SubtractionExpr(lhs, rhs) {
@@ -178,6 +198,11 @@ SubtractionExpr.prototype.safeSimplify = function safeSimplify() {
         return new this.constructor(lhsr, rhsr);
     }
 };
+SubtractionExpr.prototype.derivative = function derivative(wrt) {
+    var lhsd = this.lhs.derivative(wrt);
+    var rhsd = this.rhs.derivative(wrt);
+    return new SubtractionExpr(lhsd, rhsd);
+};
 
 function MultiplicationExpr(lhs, rhs) {
     BinaryExpr.call(this, "*", lhs, rhs);
@@ -194,9 +219,18 @@ MultiplicationExpr.prototype.safeSimplify = function safeSimplify() {
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
         return new NumericalLiteralExpr(lhsr.value * rhsr.value, this.range);
-    } else {
+    } else if (isZero(lhsr) || isOne(rhsr)) return lhsr;
+    else if (isZero(rhsr) || isOne(lhsr)) return rhsr;
+    else {
         return new this.constructor(lhsr, rhsr);
     }
+};
+MultiplicationExpr.prototype.derivative = function derivative(wrt) {
+    var lhsd = this.lhs.derivative(wrt);
+    var rhsd = this.rhs.derivative(wrt);
+    var left = new MultiplicationExpr(lhsd, this.rhs);
+    var right = new MultiplicationExpr(this.lhs, rhsd);
+    return new AdditionExpr(left, right);
 };
 
 function ImplicitMultiplicationExpr(lhs, rhs) {
@@ -313,6 +347,41 @@ function UnaryPostfixExpr(operator, operand, operatorEnd) {
 }
 UnaryPostfixExpr.prototype = Object.create(UnaryExpr.prototype);
 UnaryPostfixExpr.prototype.constructor = UnaryPostfixExpr;
+
+// A symbolic derivative expression
+function DerivativeExpr(subexpr, wrt, range) {
+    Expr.call(this, range);
+    this.subexpr = subexpr;
+    this.wrt = wrt;
+}
+DerivativeExpr.prototype = Object.create(Expr.prototype);
+DerivativeExpr.prototype.constructor = DerivativeExpr;
+DerivativeExpr.prototype.toLatexString = function toLatexString() {
+    return "\\frac{\\mathrm{d}}{\\mathrm{d}" + this.wrt + "}\\," +
+        "\\left(" + this.subexpr.toLatexString() + "\\right)";
+};
+DerivativeExpr.prototype.toInputString = function toInputString() {
+    return "derivative " + this.subexpr.toInputString() + " wrt " +
+        this.wrt;
+};
+DerivativeExpr.parse = function parse(parser) {
+    parser.require("derivative");
+    var subexpr = parser.parse(0);
+    var range = subexpr.range;
+    if (parser.peek() && parser.peek().str === "wrt") {
+        parser.require("wrt");
+        var wrtToken = parser.next();
+        var wrt = wrtToken.str;
+        range.end = wrtToken.range.end;
+    } else {
+        // TODO autodetect primary var
+        throw new Error("not yet implemented"); // TODO
+    }
+    return new DerivativeExpr(subexpr, wrt, range);
+};
+DerivativeExpr.prototype.safeSimplify = function safeSimplify() {
+    return this.subexpr.derivative(this.wrt).safeSimplify();
+};
 
 // A symbolic integral expression
 function IntegralExpr(integrand, wrt, range) {
