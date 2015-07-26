@@ -263,9 +263,18 @@ DivisionExpr.prototype.safeSimplify = function safeSimplify() {
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
         return new NumericalLiteralExpr(lhsr.value / rhsr.value, this.range);
-    } else {
+    } else if (isZero(lhsr) || isOne(rhsr)) return lhsr;
+    else {
         return new this.constructor(lhsr, rhsr);
     }
+};
+DivisionExpr.prototype.derivative = function derivative(wrt) {
+    var lhsd = this.lhs.derivative(wrt);
+    var rhsd = this.rhs.derivative(wrt);
+    var left = new MultiplicationExpr(lhsd, this.rhs);
+    var right = new MultiplicationExpr(this.lhs, rhsd);
+    var bottom = new ExponentiationExpr(this.rhs, new NumericalLiteralExpr(2, this.range));
+    return new DivisionExpr(new SubtractionExpr(left, right), bottom);
 };
 
 function ExponentiationExpr(lhs, rhs) {
