@@ -62,6 +62,7 @@ Molfraw.handleGoButton = function handleGoButton() {
 };
 
 Molfraw.preparePage = function preparePage() {
+    // make examples clickable
     var examples = document.getElementsByClassName("exampleMono");
     examples = Array.prototype.slice.call(examples);
     examples.forEach(function (example) {
@@ -70,6 +71,17 @@ Molfraw.preparePage = function preparePage() {
             Molfraw.execute();
         };
     });
+    // set up go button mouse highlighting on non-touch devices
+    // (mobile safari botches any sane attempts at hover detection)
+    if (!("ontouchstart" in window)) {
+        var goButton = document.getElementById("go");
+        goButton.addEventListener("mouseenter", function() {
+            goButton.className = "goHover";
+        });
+        goButton.addEventListener("mouseleave", function() {
+            goButton.className = "";
+        });
+    }
 };
 
 window.onload = function() { Molfraw.preparePage(); }

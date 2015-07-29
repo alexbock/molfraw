@@ -9,7 +9,7 @@ body {
     background-size: cover;
     color: white;
     background-color: black;
-    font-family: sans-serif;
+    font-family: -apple-system, sans-serif;
     font-weight: 300;
 }
 
@@ -69,9 +69,9 @@ body {
     text-align: center;
 }
 
-#go:hover {
-    background-color: rgba(255, 255, 255, 0.6);
-    color: black;
+.goHover {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    color: black !important;
 }
 
 #output {
