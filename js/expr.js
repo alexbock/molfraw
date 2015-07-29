@@ -18,6 +18,9 @@ Expr.prototype.safeSimplify = function safeSimplify() {
 Expr.prototype.derivative = function derivative(wrt) {
     pureVirtual();
 };
+Expr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
+    return null;
+};
 
 // Wraps an expression enclosed in parentheses
 function ParenExpr(subexpr, range) {
@@ -40,6 +43,9 @@ ParenExpr.prototype.safeSimplify = function safeSimplify() {
 };
 ParenExpr.prototype.derivative = function derivative(wrt) {
     return this.subexpr.derivative(wrt);
+};
+ParenExpr.prototype.guessPrimaryVariable = function guessPrimaryVar() {
+    return this.subexpr.guessPrimaryVariable();
 };
 ParenExpr.parse = function parse(parser) {
     var lparen = parser.require("(");
@@ -101,6 +107,9 @@ VarExpr.prototype.derivative = function derivative(wrt) {
     if (wrt === this.name) return new NumericalLiteralExpr(1, this.range);
     else return new NumericalLiteralExpr(0, this.range);
 };
+VarExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
+    return this.name;
+};
 VarExpr.parse = function parse(parser) {
     var token = parser.next();
     return new VarExpr(token.str, token.range);
@@ -141,6 +150,9 @@ BinaryExpr.prototype.toInputString = function toInputString() {
     var lhsStr = this.lhs.toInputString();
     var rhsStr = this.rhs.toInputString();
     return lhsStr + " " + this.operator + " " + rhsStr;
+};
+BinaryExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
+    return this.lhs.guessPrimaryVariable() || this.rhs.guessPrimaryVariable();
 };
 BinaryExpr.parse = function parse(parser, lhs) {
     var token = parser.next();
@@ -317,6 +329,9 @@ UnaryExpr.prototype.toInputString = function toInputString() {
         return this.operand.toInputString() + this.operator;
     }
 };
+UnaryExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
+    return this.operand.guessPrimaryVariable();
+};
 
 // A unary prefix operator expression
 function UnaryPrefixExpr(operator, operand, operatorOffset) {
@@ -373,6 +388,9 @@ DerivativeExpr.prototype.toInputString = function toInputString() {
     return "derivative " + this.subexpr.toInputString() + " wrt " +
         this.wrt;
 };
+DerivativeExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
+    return this.wrt;
+};
 DerivativeExpr.parse = function parse(parser) {
     parser.require("derivative");
     var subexpr = parser.parse(0);
@@ -383,8 +401,8 @@ DerivativeExpr.parse = function parse(parser) {
         var wrt = wrtToken.str;
         range.end = wrtToken.range.end;
     } else {
-        // TODO autodetect primary var
-        throw new Error("not yet implemented"); // TODO
+        var wrt = subexpr.guessPrimaryVariable();
+        if (!wrt) wrt = "x";
     }
     return new DerivativeExpr(subexpr, wrt, range);
 };
