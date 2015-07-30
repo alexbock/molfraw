@@ -368,7 +368,7 @@ NegationExpr.prototype.safeSimplify = function safeSimplify() {
     if (opr instanceof NumericalLiteralExpr) {
         return new NumericalLiteralExpr(-opr.value, this.range);
     } else {
-        return new this(this.operand, this.operatorOffset);
+        return new NegationExpr(this.operand, this.operatorOffset);
     }
 };
 
