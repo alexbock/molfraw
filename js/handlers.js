@@ -6,6 +6,8 @@ function prefixHandler(parser) {
         // pass
     } else if (token.kind === "name") {
         return VarExpr.parse(parser);
+    } else if (token.kind == "constant") {
+        return SymbolicConstantExpr.parse(parser);
     } else if (token.kind === "number") {
         return NumericalLiteralExpr.parse(parser);
     } else if (token.str === "(") {

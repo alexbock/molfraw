@@ -6,6 +6,6 @@ function Constant(name, latex, value) {
     this.value = value;
 }
 
-Constant.PI = new Constant("pi", "\pi{}", Math.PI);
-Constant.E = new Constant("e", "\mathrm{e}", Math.E);
-Constant.GOLDEN = new Constant("golden ratio", "\varphi{}", (1 + Math.sqrt(5)) / 2);
+Constant.PI = new Constant("pi", "\\pi{}", Math.PI);
+Constant.E = new Constant("e", "\\mathrm{e}", Math.E);
+Constant.GOLDEN = new Constant("golden ratio", "\\varphi{}", (1 + Math.sqrt(5)) / 2);

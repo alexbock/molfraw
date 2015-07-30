@@ -64,11 +64,19 @@ function SymbolicConstantExpr(constant, range) {
 SymbolicConstantExpr.prototype = Object.create(Expr.prototype);
 SymbolicConstantExpr.prototype.constructor = SymbolicConstantExpr;
 SymbolicConstantExpr.prototype.toLatexString = function toLatexString() {
-    return constant.latex;
+    return this.constant.latex;
 };
 SymbolicConstantExpr.prototype.toInputString = function toInputString() {
-    return constant.name;
+    return this.constant.name;
 };
+SymbolicConstantExpr.parse = function parse(parser) {
+    var token = parser.next();
+    var constant = null;
+    if (token.str == "e") constant = Constant.E;
+    else if (token.str == "pi") constant = Constant.PI;
+    else throw new Error("unrecognized constant");
+    return new SymbolicConstantExpr(constant, token.range);
+}
 
 // The imaginary unit i
 function ImaginaryUnitExpr(range) {
