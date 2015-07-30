@@ -44,7 +44,7 @@ function infixHandlerFactory(parser) {
         return bindBinaryHandler(DivisionExpr, parser);
     } else if (token.str === "^") {
         return bindBinaryHandler(ExponentiationExpr, parser);
-    } else if (token.kind === "name") {
+    } else if (token.kind === "name" || token.kind == "constant") {
         var handler = ImplicitMultiplicationExpr.parse.bind(null, parser);
         handler.precedence = ImplicitMultiplicationExpr.precedence;
         return handler;
