@@ -31,9 +31,13 @@ Molfraw.displayResults = function displayResults(results) {
 };
 
 Molfraw.execute = function execute() {
+    var debug = false;
     var input = document.getElementById("input").value;
     if (!input.length) {
         return;
+    } else if (input.startsWith("debug")) {
+        input = input.substr(5);
+        debug = true;
     }
     try {
         if (input == "__debug_die") throw new Error("unhandled exception test");
@@ -44,17 +48,25 @@ Molfraw.execute = function execute() {
         if (parser.index != tokens.length) {
             throw new DiagnosableError("extraneous tokens", -1);
         }
+
+        if (debug) {
+            var lexerResult = new LexerDebugResult(tokens);
+            var lexerGroupResult = new GroupResult("Lexer Raw View", [ lexerResult ]);
+            var parserResult = new ParserDebugResult(expr);
+            var parserGroupResult = new GroupResult("Parser Raw View", [ parserResult ]);
+            Molfraw.displayResults([ lexerGroupResult, parserGroupResult ]);
+        } else {
+            var inputExprResult = new PlainExprResult(expr);
+            var inputExprGroupResult = new GroupResult("Input Interpretation", [ inputExprResult ]);
+            var outputExprResult = new PlainExprResult(expr.safeSimplify());
+            var outputExprGroupResult = new GroupResult("Result", [ outputExprResult ]);
+            Molfraw.displayResults([ inputExprGroupResult, outputExprGroupResult ]);
+        }
     } catch (e) {
         var errorResult = new ErrorResult(e);
         Molfraw.displayResults([ errorResult ]);
         return;
     }
-    
-    var lexerResult = new LexerDebugResult(tokens);
-    var lexerGroupResult = new GroupResult("Lexer Raw View", [ lexerResult ]);
-    var parserResult = new ParserDebugResult(expr);
-    var parserGroupResult = new GroupResult("Parser Raw View", [ parserResult ]);
-    Molfraw.displayResults([ lexerGroupResult, parserGroupResult ]);
 };
 
 Molfraw.handleGoButton = function handleGoButton() {

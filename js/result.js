@@ -125,3 +125,13 @@ ParserDebugResult.prototype.present = function present(parent) {
     var safeSimplifiedLatex = safeSimplified.toLatexString();
     parent.appendChild(document.createTextNode("$$" + safeSimplifiedLatex + "$$"));
 };
+
+function PlainExprResult(expr) {
+    Result.call(this, "plainExpr");
+    this.expr = expr;
+}
+PlainExprResult.prototype = Object.create(Result.prototype);
+PlainExprResult.prototype.constructor = PlainExprResult;
+PlainExprResult.prototype.present = function present(parent) {
+    parent.appendChild(document.createTextNode("$$" + this.expr.toLatexString() + "$$"));
+};
