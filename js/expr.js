@@ -69,6 +69,9 @@ SymbolicConstantExpr.prototype.toLatexString = function toLatexString() {
 SymbolicConstantExpr.prototype.toInputString = function toInputString() {
     return this.constant.name;
 };
+SymbolicConstantExpr.prototype.derivative = function derivative() {
+    return new NumericalLiteralExpr(0, this.range);
+};
 SymbolicConstantExpr.parse = function parse(parser) {
     var token = parser.next();
     var constant = null;
