@@ -142,6 +142,7 @@ BinaryExpr.prototype.shouldParenthesize = function shouldParenthesize(subexpr) {
     if (subexpr != this.lhs && subexpr != this.rhs) {
         throw new Error("expected left or right hand side");
     }
+    if (subexpr.constructor.precedence === undefined) return false;
     var less = subexpr.constructor.precedence < this.constructor.precedence;
     if (!less) return false;
     if (subexpr instanceof BinaryExpr) return true;
@@ -332,15 +333,23 @@ UnaryExpr.prototype.toLatexString = function toLatexString() {
     pureVirtual();
 };
 UnaryExpr.prototype.toInputString = function toInputString() {
+    var opStr = this.maybeParenthesize(this.operand.toInputString());
     if (this.isPrefix) {
-        return this.operator + this.operand.toInputString();
+        return this.operator + opStr;
     } else {
-        return this.operand.toInputString() + this.operator;
+        return opStr + this.operator;
     }
 };
 UnaryExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
     return this.operand.guessPrimaryVariable();
 };
+UnaryExpr.prototype.shouldParenthesize = function() {
+    pureVirtual();
+}
+UnaryExpr.prototype.maybeParenthesize = function(str) {
+    if (this.shouldParenthesize()) return "(" + str + ")";
+    else return str;
+}
 
 // A unary prefix operator expression
 function UnaryPrefixExpr(operator, operand, operatorOffset) {
@@ -348,6 +357,14 @@ function UnaryPrefixExpr(operator, operand, operatorOffset) {
 }
 UnaryPrefixExpr.prototype = Object.create(UnaryExpr.prototype);
 UnaryPrefixExpr.prototype.constructor = UnaryPrefixExpr;
+UnaryPrefixExpr.prototype.shouldParenthesize = function shouldParenthesize() {
+    if (this.operand.constructor.precedence === undefined) return false;
+    var less = this.operand.constructor.precedence < this.constructor.precedence;
+    if (!less) return false;
+    if (this.operand instanceof BinaryExpr) return true;
+    if (this.operand instanceof UnaryPostfixExpr) return true;
+    return false;
+};
 UnaryPrefixExpr.parse = function parse(parser) {
     var token = parser.next();
     var operand = parser.parse(this.precedence);
@@ -361,7 +378,7 @@ NegationExpr.prototype = Object.create(UnaryPrefixExpr.prototype);
 NegationExpr.prototype.constructor = NegationExpr;
 NegationExpr.precedence = 75;
 NegationExpr.prototype.toLatexString = function toLatexString() {
-    return "-" + this.operand.toLatexString();
+    return "-" + this.maybeParenthesize(this.operand.toLatexString());
 };
 NegationExpr.prototype.safeSimplify = function safeSimplify() {
     var opr = this.operand.safeSimplify();
