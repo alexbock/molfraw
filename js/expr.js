@@ -131,10 +131,27 @@ BinaryExpr.prototype.constructor = BinaryExpr;
 BinaryExpr.prototype.toInputString = function toInputString() {
     var lhsStr = this.lhs.toInputString();
     var rhsStr = this.rhs.toInputString();
+    lhsStr = this.maybeParenthesize(this.lhs, lhsStr);
+    rhsStr = this.maybeParenthesize(this.rhs, rhsStr);
     return lhsStr + " " + this.operator + " " + rhsStr;
 };
 BinaryExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
     return this.lhs.guessPrimaryVariable() || this.rhs.guessPrimaryVariable();
+};
+BinaryExpr.prototype.shouldParenthesize = function shouldParenthesize(subexpr) {
+    if (subexpr != this.lhs && subexpr != this.rhs) {
+        throw new Error("expected left or right hand side");
+    }
+    var less = subexpr.constructor.precedence < this.constructor.precedence;
+    if (!less) return false;
+    if (subexpr instanceof BinaryExpr) return true;
+    if (subexpr instanceof UnaryPrefixExpr && subexpr == this.lhs) return true;
+    if (subexpr instanceof UnaryPostfixExpr && subexpr == this.rhs) return true;
+    return false;
+};
+BinaryExpr.prototype.maybeParenthesize = function maybeParenthesize(side, str) {
+    if (this.shouldParenthesize(side)) return "(" + str + ")";
+    else return str;
 };
 BinaryExpr.parse = function parse(parser, lhs) {
     var token = parser.next();
@@ -153,7 +170,9 @@ AdditionExpr.prototype = Object.create(BinaryExpr.prototype);
 AdditionExpr.prototype.constructor = AdditionExpr;
 AdditionExpr.precedence = 30;
 AdditionExpr.prototype.toLatexString = function toLatexString() {
-    return this.lhs.toLatexString() + " + " + this.rhs.toLatexString();
+    var lhsStr = this.maybeParenthesize(this.lhs, this.lhs.toLatexString());
+    var rhsStr = this.maybeParenthesize(this.rhs, this.rhs.toLatexString());
+    return lhsStr + " + " + rhsStr;
 };
 AdditionExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
@@ -180,7 +199,9 @@ SubtractionExpr.prototype = Object.create(BinaryExpr.prototype);
 SubtractionExpr.prototype.constructor = SubtractionExpr;
 SubtractionExpr.precedence = 30;
 SubtractionExpr.prototype.toLatexString = function toLatexString() {
-    return this.lhs.toLatexString() + " - " + this.rhs.toLatexString();
+    var lhsStr = this.maybeParenthesize(this.lhs, this.lhs.toLatexString());
+    var rhsStr = this.maybeParenthesize(this.rhs, this.rhs.toLatexString());
+    return lhsStr + " - " + rhsStr;
 };
 SubtractionExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
@@ -205,7 +226,9 @@ MultiplicationExpr.prototype = Object.create(BinaryExpr.prototype);
 MultiplicationExpr.prototype.constructor = MultiplicationExpr;
 MultiplicationExpr.precedence = 50;
 MultiplicationExpr.prototype.toLatexString = function toLatexString() {
-    return this.lhs.toLatexString() + " \\cdot{} " + this.rhs.toLatexString();
+    var lhsStr = this.maybeParenthesize(this.lhs, this.lhs.toLatexString());
+    var rhsStr = this.maybeParenthesize(this.rhs, this.rhs.toLatexString());
+    return lhsStr + " \\cdot{} " + rhsStr;
 };
 MultiplicationExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
@@ -248,8 +271,10 @@ DivisionExpr.prototype = Object.create(BinaryExpr.prototype);
 DivisionExpr.prototype.constructor = DivisionExpr;
 DivisionExpr.precedence = 50;
 DivisionExpr.prototype.toLatexString = function toLatexString() {
-    return "\\frac{" + this.lhs.toLatexString() +
-        "}{" + this.rhs.toLatexString() + "}";
+    var lhsStr = this.maybeParenthesize(this.lhs, this.lhs.toLatexString());
+    var rhsStr = this.maybeParenthesize(this.rhs, this.rhs.toLatexString());
+    return "\\frac{" + lhsStr +
+        "}{" + rhsStr + "}";
 };
 DivisionExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
@@ -279,7 +304,9 @@ ExponentiationExpr.prototype.constructor = ExponentiationExpr;
 ExponentiationExpr.precedence = 80;
 ExponentiationExpr.rightAssociative = true;
 ExponentiationExpr.prototype.toLatexString = function toLatexString() {
-    return this.lhs.toLatexString() + "^{" + this.rhs.toLatexString() + "}";
+    var lhsStr = this.maybeParenthesize(this.lhs, this.lhs.toLatexString());
+    var rhsStr = this.maybeParenthesize(this.rhs, this.rhs.toLatexString());
+    return lhsStr + "^{" + rhsStr + "}";
 };
 ExponentiationExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
