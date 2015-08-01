@@ -1,7 +1,6 @@
 "use strict";
 
-function Expr(range) {
-    this.range = range;
+function Expr() {
 }
 Expr.prototype.toLatexString = function toLatexString() {
     pureVirtual();
@@ -23,8 +22,8 @@ Expr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
 };
 
 // Wraps an expression enclosed in parentheses
-function ParenExpr(subexpr, range) {
-    Expr.call(this, range);
+function ParenExpr(subexpr) {
+    Expr.call(this);
     this.subexpr = subexpr;
 }
 ParenExpr.prototype = Object.create(Expr.prototype);
@@ -48,17 +47,16 @@ ParenExpr.prototype.guessPrimaryVariable = function guessPrimaryVar() {
     return this.subexpr.guessPrimaryVariable();
 };
 ParenExpr.parse = function parse(parser) {
-    var lparen = parser.require("(");
+    parser.require("(");
     var subexpr = parser.parse(0);
-    var rparen = parser.expect(")");
-    var range = new Range(lparen.range.begin, rparen.range.end);
-    return new ParenExpr(subexpr, range);
+    parser.expect(")");
+    return new ParenExpr(subexpr);
 }
 
 // A symbolic constant that should be preserved whenever possible
 // with an underlying approximate numerical value
-function SymbolicConstantExpr(constant, range) {
-    Expr.call(this, range);
+function SymbolicConstantExpr(constant) {
+    Expr.call(this);
     this.constant = constant;
 }
 SymbolicConstantExpr.prototype = Object.create(Expr.prototype);
@@ -70,7 +68,7 @@ SymbolicConstantExpr.prototype.toInputString = function toInputString() {
     return this.constant.name;
 };
 SymbolicConstantExpr.prototype.derivative = function derivative() {
-    return new NumericalLiteralExpr(0, this.range);
+    return new NumericalLiteralExpr(0);
 };
 SymbolicConstantExpr.parse = function parse(parser) {
     var token = parser.next();
@@ -78,12 +76,12 @@ SymbolicConstantExpr.parse = function parse(parser) {
     if (token.str == "e") constant = Constant.E;
     else if (token.str == "pi") constant = Constant.PI;
     else throw new Error("unrecognized constant");
-    return new SymbolicConstantExpr(constant, token.range);
+    return new SymbolicConstantExpr(constant);
 }
 
 // The imaginary unit i
-function ImaginaryUnitExpr(range) {
-    Expr.call(this, range);
+function ImaginaryUnitExpr() {
+    Expr.call(this);
 }
 ImaginaryUnitExpr.prototype = Object.create(Expr.prototype);
 ImaginaryUnitExpr.prototype.constructor = ImaginaryUnitExpr;
@@ -95,8 +93,8 @@ ImaginaryUnitExpr.prototype.toInputString = function toInputString() {
 };
 
 // A symbolic variable
-function VarExpr(name, range) {
-    Expr.call(this, range);
+function VarExpr(name) {
+    Expr.call(this);
     this.name = name;
 }
 VarExpr.prototype = Object.create(Expr.prototype);
@@ -115,20 +113,20 @@ VarExpr.prototype.toInputString = function toInputString() {
     return this.name;
 };
 VarExpr.prototype.derivative = function derivative(wrt) {
-    if (wrt === this.name) return new NumericalLiteralExpr(1, this.range);
-    else return new NumericalLiteralExpr(0, this.range);
+    if (wrt === this.name) return new NumericalLiteralExpr(1);
+    else return new NumericalLiteralExpr(0);
 };
 VarExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
     return this.name;
 };
 VarExpr.parse = function parse(parser) {
     var token = parser.next();
-    return new VarExpr(token.str, token.range);
+    return new VarExpr(token.str);
 }
 
 // A constant numerical value
-function NumericalLiteralExpr(value, range) {
-    Expr.call(this, range);
+function NumericalLiteralExpr(value) {
+    Expr.call(this);
     this.value = value;
 }
 NumericalLiteralExpr.prototype = Object.create(Expr.prototype);
@@ -140,17 +138,17 @@ NumericalLiteralExpr.prototype.toInputString = function toInputString() {
     return this.value;
 };
 NumericalLiteralExpr.prototype.derivative = function derivative(wrt) {
-    return new NumericalLiteralExpr(0, this.range);
+    return new NumericalLiteralExpr(0);
 };
 NumericalLiteralExpr.parse = function parse(parser) {
     var token = parser.next();
     var value = token.str / 1;
-    return new NumericalLiteralExpr(value, token.range);
+    return new NumericalLiteralExpr(value);
 }
 
 // A binary operator expression
 function BinaryExpr(operator, lhs, rhs) {
-    Expr.call(this, new Range(lhs.range.begin, rhs.range.end));
+    Expr.call(this);
     this.operator = operator;
     this.lhs = lhs;
     this.rhs = rhs;
@@ -189,7 +187,7 @@ AdditionExpr.prototype.safeSimplify = function safeSimplify() {
     var rhsr = this.rhs.safeSimplify();
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value + rhsr.value, this.range);
+        return new NumericalLiteralExpr(lhsr.value + rhsr.value);
     } else if (isZero(lhsr)) return rhsr;
     else if (isZero(rhsr)) return lhsr;
     else {
@@ -216,7 +214,7 @@ SubtractionExpr.prototype.safeSimplify = function safeSimplify() {
     var rhsr = this.rhs.safeSimplify();
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value - rhsr.value, this.range);
+        return new NumericalLiteralExpr(lhsr.value - rhsr.value);
     } else {
         return new this.constructor(lhsr, rhsr);
     }
@@ -241,7 +239,7 @@ MultiplicationExpr.prototype.safeSimplify = function safeSimplify() {
     var rhsr = this.rhs.safeSimplify();
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value * rhsr.value, this.range);
+        return new NumericalLiteralExpr(lhsr.value * rhsr.value);
     } else if (isZero(lhsr) || isOne(rhsr)) return lhsr;
     else if (isZero(rhsr) || isOne(lhsr)) return rhsr;
     else {
@@ -285,7 +283,7 @@ DivisionExpr.prototype.safeSimplify = function safeSimplify() {
     var rhsr = this.rhs.safeSimplify();
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value / rhsr.value, this.range);
+        return new NumericalLiteralExpr(lhsr.value / rhsr.value);
     } else if (isZero(lhsr) || isOne(rhsr)) return lhsr;
     else {
         return new this.constructor(lhsr, rhsr);
@@ -296,7 +294,7 @@ DivisionExpr.prototype.derivative = function derivative(wrt) {
     var rhsd = this.rhs.derivative(wrt);
     var left = new MultiplicationExpr(lhsd, this.rhs);
     var right = new MultiplicationExpr(this.lhs, rhsd);
-    var bottom = new ExponentiationExpr(this.rhs, new NumericalLiteralExpr(2, this.range));
+    var bottom = new ExponentiationExpr(this.rhs, new NumericalLiteralExpr(2));
     return new DivisionExpr(new SubtractionExpr(left, right), bottom);
 };
 
@@ -315,15 +313,15 @@ ExponentiationExpr.prototype.safeSimplify = function safeSimplify() {
     var rhsr = this.rhs.safeSimplify();
     if (lhsr instanceof NumericalLiteralExpr &&
         rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(Math.pow(lhsr.value, rhsr.value), this.range);
+        return new NumericalLiteralExpr(Math.pow(lhsr.value, rhsr.value));
     } else {
         return new this.constructor(lhsr, rhsr);
     }
 };
 
 // A unary operator expression
-function UnaryExpr(operator, operand, isPrefix, range) {
-    Expr.call(this, range);
+function UnaryExpr(operator, operand, isPrefix) {
+    Expr.call(this);
     this.operator = operator;
     this.operand = operand;
     this.isPrefix = isPrefix;
@@ -346,15 +344,14 @@ UnaryExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
 
 // A unary prefix operator expression
 function UnaryPrefixExpr(operator, operand, operatorOffset) {
-    var range = new Range(operatorOffset, operand.range.end);
-    UnaryExpr.call(this, operator, operand, true, range);
+    UnaryExpr.call(this, operator, operand, true);
 }
 UnaryPrefixExpr.prototype = Object.create(UnaryExpr.prototype);
 UnaryPrefixExpr.prototype.constructor = UnaryPrefixExpr;
 UnaryPrefixExpr.parse = function parse(parser) {
     var token = parser.next();
     var operand = parser.parse(this.precedence);
-    return new this(operand, token.range.begin);
+    return new this(operand);
 }
 
 function NegationExpr(operand, operatorOffset) {
@@ -369,7 +366,7 @@ NegationExpr.prototype.toLatexString = function toLatexString() {
 NegationExpr.prototype.safeSimplify = function safeSimplify() {
     var opr = this.operand.safeSimplify();
     if (opr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(-opr.value, this.range);
+        return new NumericalLiteralExpr(-opr.value);
     } else {
         return new NegationExpr(this.operand, this.operatorOffset);
     }
@@ -377,15 +374,14 @@ NegationExpr.prototype.safeSimplify = function safeSimplify() {
 
 // A unary postfix operator expression
 function UnaryPostfixExpr(operator, operand, operatorEnd) {
-    var range = new Range(operand.range.begin, operatorEnd);
-    UnaryExpr.call(this, operator, operand, false, range);
+    UnaryExpr.call(this, operator, operand, false);
 }
 UnaryPostfixExpr.prototype = Object.create(UnaryExpr.prototype);
 UnaryPostfixExpr.prototype.constructor = UnaryPostfixExpr;
 
 // A symbolic derivative expression
-function DerivativeExpr(subexpr, wrt, range) {
-    Expr.call(this, range);
+function DerivativeExpr(subexpr, wrt) {
+    Expr.call(this);
     this.subexpr = subexpr;
     this.wrt = wrt;
 }
@@ -405,25 +401,23 @@ DerivativeExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() 
 DerivativeExpr.parse = function parse(parser) {
     parser.require("derivative");
     var subexpr = parser.parse(0);
-    var range = subexpr.range;
     if (parser.peek() && parser.peek().str === "wrt") {
         parser.require("wrt");
         var wrtToken = parser.next();
         var wrt = wrtToken.str;
-        range.end = wrtToken.range.end;
     } else {
         var wrt = subexpr.guessPrimaryVariable();
         if (!wrt) wrt = "x";
     }
-    return new DerivativeExpr(subexpr, wrt, range);
+    return new DerivativeExpr(subexpr, wrt);
 };
 DerivativeExpr.prototype.safeSimplify = function safeSimplify() {
     return this.subexpr.derivative(this.wrt).safeSimplify();
 };
 
 // A symbolic integral expression
-function IntegralExpr(integrand, wrt, range) {
-    Expr.call(this, range);
+function IntegralExpr(integrand, wrt) {
+    Expr.call(this);
     this.integrand = integrand;
     this.wrt = wrt;
 }
@@ -440,8 +434,8 @@ IntegralExpr.parse = function parse(parser) {
 };
 
 // An indefinite integral expression
-function IndefiniteIntegralExpr(integrand, wrt, range) {
-    IntegralExpr.call(this, integrand, wrt, range);
+function IndefiniteIntegralExpr(integrand, wrt) {
+    IntegralExpr.call(this, integrand, wrt);
 }
 IndefiniteIntegralExpr.prototype = Object.create(IntegralExpr.prototype);
 IndefiniteIntegralExpr.prototype.constructor = IndefiniteIntegralExpr;
@@ -455,8 +449,8 @@ IndefiniteIntegralExpr.prototype.toInputString = function toInputString() {
 };
 
 // A symbolic definite integral expression
-function DefiniteIntegralExpr(integrand, from, to, wrt, range) {
-    IntegralExpr.call(integrand, wrt, range);
+function DefiniteIntegralExpr(integrand, from, to, wrt) {
+    IntegralExpr.call(integrand, wrt);
     this.from = from;
     this.to = to;
 }
