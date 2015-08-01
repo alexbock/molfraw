@@ -9,7 +9,7 @@ function prefixHandler(parser) {
     } else if (token.kind == "constant") {
         return SymbolicConstantExpr.parse(parser);
     } else if (token.kind === "number") {
-        return NumericalLiteralExpr.parse(parser);
+        return NumberExpr.parse(parser);
     } else if (token.str === "(") {
         return parseParenExpr(parser);
     } else if (token.str === "integrate" || token.str == "integral") {

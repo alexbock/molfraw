@@ -41,7 +41,7 @@ SymbolicConstantExpr.prototype.toInputString = function toInputString() {
     return this.constant.name;
 };
 SymbolicConstantExpr.prototype.derivative = function derivative() {
-    return new NumericalLiteralExpr(0);
+    return new NumberExpr(0);
 };
 SymbolicConstantExpr.parse = function parse(parser) {
     var token = parser.next();
@@ -86,8 +86,8 @@ VarExpr.prototype.toInputString = function toInputString() {
     return this.name;
 };
 VarExpr.prototype.derivative = function derivative(wrt) {
-    if (wrt === this.name) return new NumericalLiteralExpr(1);
-    else return new NumericalLiteralExpr(0);
+    if (wrt === this.name) return new NumberExpr(1);
+    else return new NumberExpr(0);
 };
 VarExpr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
     return this.name;
@@ -98,25 +98,25 @@ VarExpr.parse = function parse(parser) {
 }
 
 // A constant numerical value
-function NumericalLiteralExpr(value) {
+function NumberExpr(value) {
     Expr.call(this);
     this.value = value;
 }
-NumericalLiteralExpr.prototype = Object.create(Expr.prototype);
-NumericalLiteralExpr.prototype.constructor = NumericalLiteralExpr;
-NumericalLiteralExpr.prototype.toLatexString = function toLatexString() {
+NumberExpr.prototype = Object.create(Expr.prototype);
+NumberExpr.prototype.constructor = NumberExpr;
+NumberExpr.prototype.toLatexString = function toLatexString() {
     return this.value;
 };
-NumericalLiteralExpr.prototype.toInputString = function toInputString() {
+NumberExpr.prototype.toInputString = function toInputString() {
     return this.value;
 };
-NumericalLiteralExpr.prototype.derivative = function derivative(wrt) {
-    return new NumericalLiteralExpr(0);
+NumberExpr.prototype.derivative = function derivative(wrt) {
+    return new NumberExpr(0);
 };
-NumericalLiteralExpr.parse = function parse(parser) {
+NumberExpr.parse = function parse(parser) {
     var token = parser.next();
     var value = token.str / 1;
-    return new NumericalLiteralExpr(value);
+    return new NumberExpr(value);
 }
 
 // A binary operator expression
@@ -178,9 +178,9 @@ AdditionExpr.prototype.toLatexString = function toLatexString() {
 AdditionExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
     var rhsr = this.rhs.safeSimplify();
-    if (lhsr instanceof NumericalLiteralExpr &&
-        rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value + rhsr.value);
+    if (lhsr instanceof NumberExpr &&
+        rhsr instanceof NumberExpr) {
+        return new NumberExpr(lhsr.value + rhsr.value);
     } else if (isZero(lhsr)) return rhsr;
     else if (isZero(rhsr)) return lhsr;
     else {
@@ -207,9 +207,9 @@ SubtractionExpr.prototype.toLatexString = function toLatexString() {
 SubtractionExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
     var rhsr = this.rhs.safeSimplify();
-    if (lhsr instanceof NumericalLiteralExpr &&
-        rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value - rhsr.value);
+    if (lhsr instanceof NumberExpr &&
+        rhsr instanceof NumberExpr) {
+        return new NumberExpr(lhsr.value - rhsr.value);
     } else {
         return new this.constructor(lhsr, rhsr);
     }
@@ -234,9 +234,9 @@ MultiplicationExpr.prototype.toLatexString = function toLatexString() {
 MultiplicationExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
     var rhsr = this.rhs.safeSimplify();
-    if (lhsr instanceof NumericalLiteralExpr &&
-        rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value * rhsr.value);
+    if (lhsr instanceof NumberExpr &&
+        rhsr instanceof NumberExpr) {
+        return new NumberExpr(lhsr.value * rhsr.value);
     } else if (isZero(lhsr) || isOne(rhsr)) return lhsr;
     else if (isZero(rhsr) || isOne(lhsr)) return rhsr;
     else {
@@ -280,9 +280,9 @@ DivisionExpr.prototype.toLatexString = function toLatexString() {
 DivisionExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
     var rhsr = this.rhs.safeSimplify();
-    if (lhsr instanceof NumericalLiteralExpr &&
-        rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(lhsr.value / rhsr.value);
+    if (lhsr instanceof NumberExpr &&
+        rhsr instanceof NumberExpr) {
+        return new NumberExpr(lhsr.value / rhsr.value);
     } else if (isZero(lhsr) || isOne(rhsr)) return lhsr;
     else {
         return new this.constructor(lhsr, rhsr);
@@ -293,7 +293,7 @@ DivisionExpr.prototype.derivative = function derivative(wrt) {
     var rhsd = this.rhs.derivative(wrt);
     var left = new MultiplicationExpr(lhsd, this.rhs);
     var right = new MultiplicationExpr(this.lhs, rhsd);
-    var bottom = new ExponentiationExpr(this.rhs, new NumericalLiteralExpr(2));
+    var bottom = new ExponentiationExpr(this.rhs, new NumberExpr(2));
     return new DivisionExpr(new SubtractionExpr(left, right), bottom);
 };
 
@@ -312,9 +312,9 @@ ExponentiationExpr.prototype.toLatexString = function toLatexString() {
 ExponentiationExpr.prototype.safeSimplify = function safeSimplify() {
     var lhsr = this.lhs.safeSimplify();
     var rhsr = this.rhs.safeSimplify();
-    if (lhsr instanceof NumericalLiteralExpr &&
-        rhsr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(Math.pow(lhsr.value, rhsr.value));
+    if (lhsr instanceof NumberExpr &&
+        rhsr instanceof NumberExpr) {
+        return new NumberExpr(Math.pow(lhsr.value, rhsr.value));
     } else {
         return new this.constructor(lhsr, rhsr);
     }
@@ -382,8 +382,8 @@ NegationExpr.prototype.toLatexString = function toLatexString() {
 };
 NegationExpr.prototype.safeSimplify = function safeSimplify() {
     var opr = this.operand.safeSimplify();
-    if (opr instanceof NumericalLiteralExpr) {
-        return new NumericalLiteralExpr(-opr.value);
+    if (opr instanceof NumberExpr) {
+        return new NumberExpr(-opr.value);
     } else {
         return new NegationExpr(this.operand, this.operatorOffset);
     }

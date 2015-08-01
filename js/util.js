@@ -10,7 +10,7 @@ function isLatexGreekLetterName(name) {
 
 function isParticularNumber(e, n) {
     e = e.safeSimplify();
-    if (e instanceof NumericalLiteralExpr) return e.value === n;
+    if (e instanceof NumberExpr) return e.value === n;
     else return false;
 }
 
