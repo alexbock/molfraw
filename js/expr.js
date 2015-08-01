@@ -8,9 +8,6 @@ Expr.prototype.toLatexString = function toLatexString() {
 Expr.prototype.toInputString = function toInputString() {
     pureVirtual();
 };
-Expr.prototype.bypassParens = function bypassParens() {
-    return this;
-};
 Expr.prototype.safeSimplify = function safeSimplify() {
     return this;
 };
@@ -22,35 +19,11 @@ Expr.prototype.guessPrimaryVariable = function guessPrimaryVariable() {
 };
 
 // Wraps an expression enclosed in parentheses
-function ParenExpr(subexpr) {
-    Expr.call(this);
-    this.subexpr = subexpr;
-}
-ParenExpr.prototype = Object.create(Expr.prototype);
-ParenExpr.prototype.constructor = ParenExpr;
-ParenExpr.prototype.toLatexString = function toLatexString() {
-    return "\\left(" + this.subexpr.toLatexString() + "\\right)";
-};
-ParenExpr.prototype.toInputString = function toInputString() {
-    return "(" + this.subexpr.toInputString() + ")";
-};
-ParenExpr.prototype.bypassParens = function bypassParens() {
-    return this.subexpr.bypassParens();
-};
-ParenExpr.prototype.safeSimplify = function safeSimplify() {
-    return this.subexpr.safeSimplify();
-};
-ParenExpr.prototype.derivative = function derivative(wrt) {
-    return this.subexpr.derivative(wrt);
-};
-ParenExpr.prototype.guessPrimaryVariable = function guessPrimaryVar() {
-    return this.subexpr.guessPrimaryVariable();
-};
-ParenExpr.parse = function parse(parser) {
+function parseParenExpr(parser) {
     parser.require("(");
     var subexpr = parser.parse(0);
     parser.expect(")");
-    return new ParenExpr(subexpr);
+    return subexpr;
 }
 
 // A symbolic constant that should be preserved whenever possible

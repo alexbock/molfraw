@@ -11,7 +11,7 @@ function prefixHandler(parser) {
     } else if (token.kind === "number") {
         return NumericalLiteralExpr.parse(parser);
     } else if (token.str === "(") {
-        return ParenExpr.parse(parser);
+        return parseParenExpr(parser);
     } else if (token.str === "integrate" || token.str == "integral") {
        return IntegralExpr.parse(parser);
     } else if (token.str === "derivative") {
