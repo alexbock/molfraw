@@ -134,4 +134,15 @@ PlainExprResult.prototype = Object.create(Result.prototype);
 PlainExprResult.prototype.constructor = PlainExprResult;
 PlainExprResult.prototype.present = function present(parent) {
     parent.appendChild(document.createTextNode("$$" + this.expr.toLatexString() + "$$"));
+    // add a link to input this result as a query
+    var inputDiv = document.createElement("div");
+    inputDiv.className = "resultIdempotentInput";
+    var inputSpan = document.createElement("span");
+    inputSpan.appendChild(document.createTextNode(this.expr.toInputString()));
+    inputDiv.appendChild(inputSpan);
+    parent.appendChild(inputDiv);
+    inputSpan.onclick = function() {
+        document.getElementById("input").value = inputSpan.innerHTML;
+        Molfraw.execute();
+    };
 };

@@ -15,7 +15,13 @@ Molfraw.displayResults = function displayResults(results) {
     var output = document.getElementById("output");
     output.className = "placeholderBlur";
     output.innerHTML = "";
+    var first = true;
     results.forEach(function (result) {
+        if (first) {
+            first = false;
+        } else {
+            output.appendChild(document.createElement("hr"));
+        }
         result.present(output); 
     });
     if (!window.MathJax) {

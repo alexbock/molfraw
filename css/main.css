@@ -131,6 +131,17 @@ body {
     width: 10em;
 }
 
+.resultIdempotentInput {
+    color: darkgrey;
+    text-align: right;
+    font-size: 50%;
+    font-family: monospace;
+}
+
+.resultIdempotentInput span {
+    cursor: pointer;
+}
+
 .placeholderBlur {
     -webkit-filter: blur(4px);
     -moz-filter: blur(4px);
