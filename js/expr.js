@@ -419,8 +419,11 @@ DerivativeExpr.parse = function parse(parser) {
     parser.require("derivative");
     var subexpr = parser.parse(0);
     if (parser.peek() && parser.peek().str === "wrt") {
-        parser.require("wrt");
+        var intro = parser.require("wrt");
         var wrtToken = parser.next();
+        if (!wrtToken) {
+            throw new DiagnosableError("expected variable name", intro.range.end);
+        }
         var wrt = wrtToken.str;
     } else {
         var wrt = subexpr.guessPrimaryVariable();
