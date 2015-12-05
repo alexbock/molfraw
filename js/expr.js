@@ -319,6 +319,38 @@ ExponentiationExpr.prototype.safeSimplify = function safeSimplify() {
         return new this.constructor(lhsr, rhsr);
     }
 };
+ExponentiationExpr.prototype.derivative = function derivative(wrt) {
+    var ln_x = new LogExpr(new SymbolicConstantExpr(Constant.E), this.lhs);
+    var part1 = new ExponentiationExpr(new SymbolicConstantExpr(Constant.E), new MultiplicationExpr(this.rhs, ln_x));
+    var part2_1 = new MultiplicationExpr(this.rhs.derivative(wrt), ln_x);
+    var part2_2 = new MultiplicationExpr(new MultiplicationExpr(this.rhs, this.lhs.derivative(wrt)), new DivisionExpr(new NumberExpr(1), this.lhs));
+    var part2 = new AdditionExpr(part2_1, part2_2);
+    var result = new MultiplicationExpr(part1, part2);
+    return result;
+};
+
+function isE(expr) {
+    return (expr instanceof SymbolicConstantExpr) && (expr.constant == Constant.E);
+}
+
+// A logarithm expression
+function LogExpr(base, arg) {
+    Expr.call(this);
+    this.base = base;
+    this.arg = arg;
+}
+LogExpr.prototype = Object.create(Expr.prototype);
+LogExpr.prototype.constructor = LogExpr;
+LogExpr.prototype.toLatexString = function toLatexString() {
+    if (isE(this.base)) {
+        return "\\mathrm{ln}\\left(" + this.arg.toLatexString() + "\\right)";
+    }
+    return "\\mathrm{log}_{" + this.base.toLatexString() + "}\\left(" + this.arg.toLatexString() + "\\right)";
+};
+LogExpr.prototype.toInputString = function toInputString() {
+    // TODO special case for base e
+    return "log(" + this.base.toInputString() + ", " + this.arg.toInputString() + ")";
+};
 
 // A unary operator expression
 function UnaryExpr(operator, operand, isPrefix) {
