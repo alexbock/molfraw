@@ -316,6 +316,15 @@ ExponentiationExpr.prototype.safeSimplify = function safeSimplify() {
         rhsr instanceof NumberExpr) {
         return new NumberExpr(Math.pow(lhsr.value, rhsr.value));
     } else {
+        if (isE(lhsr)) {
+            if ((rhsr instanceof LogExpr) && isE(rhsr.base)) {
+                return rhsr.arg;
+            } else if (rhsr instanceof MultiplicationExpr) {
+                if ((rhsr.rhs instanceof LogExpr) && isE(rhsr.rhs.base)) {
+                    return new ExponentiationExpr(rhsr.rhs.arg, rhsr.lhs);
+                }
+            }
+        }
         return new this.constructor(lhsr, rhsr);
     }
 };
